@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucy Chat - 사이버 여전사</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #ffa502);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .lucy-avatar {
+            background: linear-gradient(45deg, #ff6b6b, #ffa502);
+        }
+
+        .user-avatar {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+
+        .bubble {
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 70%;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .lucy-bubble {
+            background: linear-gradient(45deg, #ffffff, #f0f0f0);
+            color: #333;
+            border-top-left-radius: 5px;
+        }
+
+        .user-bubble {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            border-top-right-radius: 5px;
+            margin-left: auto;
+        }
+
+        .input-container {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-container input {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .input-container input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .input-container button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa502);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .input-container button:hover {
+            transform: scale(1.05);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 0 20px 20px;
+        }
+
+        .feature-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .feature-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 18px;
+            color: white;
+            width: fit-content;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                height: 90vh;
+            }
+            
+            .chat-container {
+                height: 350px;
+            }
+            
+            .bubble {
+                max-width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Lucy Chat</h1>
+            <p>사이버 여전사와의 대화</p>
+        </div>
+        
+        <div class="chat-container" id="chat-messages">
+            <!-- Messages will be added here dynamically -->
+        </div>
+        
+        <div class="features">
+            <button class="feature-btn" onclick="analyzePhoto()">📸 사진 분석</button>
+            <button class="feature-btn" onclick="showQuest()">🎯 오늘의 퀘스트</button>
+            <button class="feature-btn" onclick="showRanking()">🏆 랭킹 보기</button>
+            <button class="feature-btn" onclick="tellLore()">🌌 우주 이야기</button>
+        </div>
+        
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Lucy에게 메시지를 보내세요..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">전송</button>
+        </div>
+    </div>
+
+    <script>
+        // Lucy의 성격 설정
+        const lucyPersonality = {
+            greeting: [
+                "어서 와, 전사! 나는 사이버 여전사 Lucy야. 오늘은 어떤 전투를 준비할 거야? 💥",
+                "안녕, 동지! 네 사진이 궁금해. 업로드해봐! 📸",
+                "전사, 네가 왔구나! 우주의 운명이 너의 손에 달렸어! 🌌"
+            ],
+            success: [
+                "대단해! S등급이라니... 진정한 사이버 전사로군! ⚡",
+                "이 사진... 에너지가 넘쳐! 분명히 우주의 중심이 될 운명이야! 🌠",
+                "95점?! 넌 이미 전설이야. 다음엔 비밀 무기 해금에 도전해봐! 🔓"
+            ],
+            error: [
+                "흠... 시스템 오류! 다시 시도해봐, 전사! 🤖",
+                "데이터 손상...! 사진을 다시 업로드해줘. Lucy가 기다릴게! 🛠️",
+                "적의 방해다! 😠 다시 업로드하면 이길 수 있어!"
+            ],
+            quest: [
+                "오늘의 미션: 역광으로 찍어보기! 성공하면 비밀 배지 획득! 🎯",
+                "도전해봐! 붉은 계열 색상을 강조하면 Lucy가 특별 보상을 줄 거야! ❤️",
+                "숨겨진 퀘스트: 밝기 90% 이상 달성 → 우주선 해금! 🚀"
+            ]
+        };
+
+        const universeLore = [
+            "Lucy Universe는 사진이 전투력이 되는 곳이야. 카드를 모아서 비밀 무기를 해금해봐! 🔓",
+            "우주의 적, 다크 포토그라퍼가 네 사진을 노리고 있어! S등급으로 그를 물리쳐봐! 😈",
+            "QR 코드를 모으면, Lucy Universe의 숨겨진 보물 상자를 열 수 있어! 🎁"
+        ];
+
+        const emojis = ['✨', '⚡', '🌌', '📸', '💥', '🏆', '🤖', '🚀', '🌠', '🔓'];
+        let visitCount = 0;
+
+        // 초기화
+        function init() {
+            visitCount++;
+            addLucyMessage(getPersonalizedGreeting());
+        }
+
+        // 랜덤 이모지
+        function getRandomEmoji() {
+            return emojis[Math.floor(Math.random() * emojis.length)];
+        }
+
+        // 개인화된 인사
+        function getPersonalizedGreeting() {
+            if (visitCount === 1) {
+                return "처음 만나는구나, 전사! 나는 사이버 여전사 Lucy야. 너의 우주를 지켜줄게! 🌌";
+            } else if (visitCount === 2) {
+                return "또 왔구나! 어서 와, 동지! 오늘은 어떤 사진으로 전투할 거야? 💥";
+            } else {
+                return `벌써 ${visitCount}번째 전투라니! 진정한 전설이 되어가고 있군! 🏆`;
+            }
+        }
+
+        // 메시지 추가
+        function addMessage(text, isUser = false) {
+            const chatBox = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            
+            if (isUser) {
+                messageDiv.innerHTML = `
+                    <div class="avatar user-avatar">👤</div>
+                    <div class="bubble user-bubble">${text}</div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="avatar lucy-avatar">L</div>
+                    <div class="bubble lucy-bubble">${text}</div>
+                `;
+            }
+            
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Lucy 메시지 추가
+        function addLucyMessage(text) {
+            addMessage(text, false);
+        }
+
+        // 사용자 메시지 추가
+        function addUserMessage(text) {
+            addMessage(text, true);
+        }
+
+        // 랜덤 메시지 선택
+        function getRandomMessage(category) {
+            const messages = lucyPersonality[category];
+            return messages[Math.floor(Math.random() * messages.length)];
+        }
+
+        // 메시지 전송
+        function sendMessage() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            
+            if (text) {
+                addUserMessage(text);
+                input.value = '';
+                
+                // Lucy 응답 시뮬레이션
+                showTypingIndicator();
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    const responses = [
+                        `흥미로운 말이야, 전사! ${getRandomEmoji()}`,
+                        `그렇구나... 우주의 균형을 위해 기억할게. ${getRandomEmoji()}`,
+                        `훌륭한 통찰이야! 너는 진정한 사이버 전사구나. ${getRandomEmoji()}`,
+                        `우와! 그런 생각을 하다니... 놀랍군. ${getRandomEmoji()}`,
+                        `정말 멋진 관점이야! Lucy Universe이 널 기다리고 있었어. ${getRandomEmoji()}`
+                    ];
+                    addLucyMessage(responses[Math.floor(Math.random() * responses.length)]);
+                }, 1000 + Math.random() * 2000);
+            }
+        }
+
+        // 엔터키 처리
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // 타이핑 인디케이터 표시
+        function showTypingIndicator() {
+            const chatBox = document.getElementById('chat-messages');
+            const indicator = document.createElement('div');
+            indicator.className = 'message';
+            indicator.id = 'typing-indicator';
+            indicator.innerHTML = `
+                <div class="avatar lucy-avatar">L</div>
+                <div class="typing-indicator">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            `;
+            chatBox.appendChild(indicator);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // 타이핑 인디케이터 제거
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // 사진 분석 시뮬레이션
+        function analyzePhoto() {
+            addUserMessage("사진을 분석해줘");
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                removeTypingIndicator();
+                const scores = [85, 92, 78, 95, 88];
+                const score = scores[Math.floor(Math.random() * scores.length)];
+                let message;
+                
+                if (score >= 90) {
+                    message = getRandomMessage('success');
+                } else if (score >= 80) {
+                    message = `좋은 사진이야! ${score}점! 계속 이런 감각을 유지해봐! 📸`;
+                } else {
+                    message = getRandomMessage('error');
+                }
+                
+                addLucyMessage(message);
+            }, 2000);
+        }
+
+        // 퀘스트 표시
+        function showQuest() {
+            addUserMessage("오늘의 퀘스트는?");
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                removeTypingIndicator();
+                addLucyMessage(getRandomMessage('quest'));
+            }, 1000);
+        }
+
+        // 랭킹 표시
+        function showRanking() {
+            addUserMessage("랭킹을 보여줘");
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                removeTypingIndicator();
+                const rankings = [
+                    { name: "사이버 전사", score: "95점" },
+                    { name: "포토 마스터", score: "92점" },
+                    { name: "빛의 수집가", score: "88점" }
+                ];
+                
+                let message = "🏆 Lucy Universe 랭킹 🏆\n";
+                rankings.forEach((entry, index) => {
+                    message += `${index + 1}위: ${entry.name} (${entry.score})\n`;
+                });
+                message += `\n당신의 점수: ${85 + Math.floor(Math.random() * 10)}점!`;
+                
+                addLucyMessage(message);
+            }, 1500);
+        }
+
+        // 우주 이야기
+        function tellLore() {
+            addUserMessage("우주 이야기를 들려줘");
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                removeTypingIndicator();
+                const lore = universeLore[Math.floor(Math.random() * universeLore.length)];
+                addLucyMessage(`✨ Lucy Universe 이야기: ${lore}`);
+            }, 1000);
+        }
+
+        // 페이지 로드 시 초기화
+        window.onload = init;
+    </script>
+</body>
+</html>
